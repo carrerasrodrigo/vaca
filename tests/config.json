@@ -1,0 +1,21 @@
+{
+    "connections": [
+      {
+        "name": "default",
+        "db_name": "vaca.db",
+        "db_port": "",
+        "db_host": "",
+        "db_password": "",
+        "db_user": "",
+        "db_type": "sqlite",
+        "db_options": ""
+      }
+    ],
+    "smtp": {
+        "host": "localhost",
+        "port": 0,
+        "user": null,
+        "password": null
+    }
+}
+
