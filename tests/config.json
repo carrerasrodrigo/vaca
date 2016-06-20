@@ -16,6 +16,7 @@
         "port": 0,
         "user": null,
         "password": null
-    }
+    },
+    "django": ["$ENV_TEST_DJANGO_NAME"]
 }
 

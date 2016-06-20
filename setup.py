@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 requirements = open('requirements.txt').read().split('\n')
 setup(
     name='Vaca',
-    version='0.0',
+    version='0.1',
     url='https://github.com/carrerasrodrigo/vaca',
     license='bsd',
     author='Rodrigo N. Carreras',

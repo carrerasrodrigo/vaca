@@ -1,6 +1,16 @@
+import os
+import sys
+
 from vaca.connection import ConnectionConfig, DbConnection
 from vaca.query import Query
 from vaca.send_mail import send_email as lsend_email
+from vaca.utils import get_val
+
+try:
+    import django
+    HAS_DJANGO = True
+except ImportError:
+    HAS_DJANGO = False
 
 
 class Vaca():
@@ -20,6 +30,12 @@ class Vaca():
         config = self.conn_config.get_connection_config(connection_name)
         self.conn.create_connection(config)
 
+        self._load_django_conf(self.conn_config.get_django_links())
+
+    def _load_django_conf(self, paths):
+        for p in paths:
+            self.link_django_app(get_val(p))
+
     def change_connection(self, connection_name):
         config = self.conn_config.get_connection_config(connection_name)
         self.conn.create_connection(config)
@@ -32,3 +48,16 @@ class Vaca():
         if smtp_config is None:
             smtp_config = self.conn_config.config['smtp']
         lsend_email(sfrom, to, subject, body, cc, bcc, files, **smtp_config)
+
+    def link_django_app(self, project_settings_path):
+        if not HAS_DJANGO:
+            raise ImportError('please install django')
+
+        if project_settings_path.endswith('.py'):
+            project_settings_path = project_settings_path[:-3]
+
+        abs_path = os.path.abspath(project_settings_path)
+        settings_path = '.'.join(abs_path.split(os.sep)[-2:])
+        sys.path.append(os.sep.join(abs_path.split(os.sep)[:-2]))
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_path)
+        django.setup()

@@ -14,6 +14,7 @@ Think of Vaca as SQL + Python. It allows you to run SQL code into a python termi
 - Save your result in json, csv or plain text.
 - Print your query in a pretty mode
 - Send your query result by email
+- Link with django projects, so mix sql + django models
 
 Let's see an example, run `vaca` in the terminal.
 
@@ -49,7 +50,9 @@ When you run `vaca` in the terminal you will get a connection running right away
         "port": 25,
         "user": null,
         "password": null
-    }}
+    },
+    "django: [optional app links...]
+    }
 
 please note that if you are using a ´sqlite´ database you only have to specify the db_name param,
 
@@ -72,7 +75,9 @@ please note that if you are using a ´sqlite´ database you only have to specify
             "port": 25,
             "user": null,
             "password": null
-        }}
+        },
+        "django: [app links...]
+  }
 
 Under connection you will add the "name" key that will help you to switch the database you need it.
 
@@ -85,13 +90,47 @@ After creating the **config.json** file you have to create an environ variable o
 #### Via terminal
     vaca --config=my-config.json ----connection=default
 
+#### Config file, hidden values.
+Adding passwords or important inputs into a config file it's not always a good idea. Vaca support environment variables into the config file. To use apply the following code `$ENV_MY_ENV_VARIABLE`, for example:
+
+  {
+        "connections": [
+          {
+            "name": "$ENV_DEFAULT_CONNECTION",
+            "db_password": "$ENV_A_PASSWORD",
+            ...
+          },
+
 -------
 
 Installation
 -------------
-    pip install pip install -e git+https://github.com/carrerasrodrigo/vaca.git#egg=vaca
+    pip install -e git+https://github.com/carrerasrodrigo/vaca.git#egg=vaca
 
-----------
+
+Link vaca with a django project
+-------------
+Vaca is very handy when you need to mix an SQL script with django. That will allow you to create an script like the following:
+
+  from mydjangoapp import MyModel
+  for idx in MyModel.objects.values_list('id', flat=True):
+    v.q('''select * from my_model where id ={}'''.format(idx))
+
+In order to link your django apps with vaca you have to add the full path of your settings file into `config.json`.
+
+For example:
+
+  {
+        "connections": [...],
+        "smtp": {...},
+        "django: ["/my/django/app/settings.py"]
+  }
+
+Otherwise you can do it manually using `v.link_django_app()`
+
+Vaca won't install django by default so you should do it manually:
+
+  pip install "django>=1.7"
 
 Vaca API
 -------------
@@ -100,7 +139,16 @@ When you run `vaca` in the terminal `v = Vaca()` instance is created and it's re
 
     v.q('select * from my table')
 
-are valid. `q.q(...` created a Query instance, that has the following methods:
+are valid. `q.q(...` created a Query instance. Please keep reading to see the method that Query has.
+
+#### Vaca().link_django_app(String project_settings_path)
+Created a link between vaca and your django app.
+
+#### Vaca().change_connection(String connection_name)
+Changes the default connection that you are going to use.
+
+#### Vaca().q(String query)
+Created a Query object.
 
 #### Query(String query).run()
 Runs the query
@@ -178,3 +226,5 @@ In order to help you building your queries, there is a couple of helpers, you ca
      datetime.datetime(2011, 1, 1, 0, 0)]
 
 `date_range` is a dictionary that accepts the following params `date_range=dict(days=1, years=1, months=1)`
+
+Edited in https://stackedit.io/

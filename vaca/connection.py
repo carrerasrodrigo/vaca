@@ -1,6 +1,7 @@
 import json
 
 from sqlalchemy import create_engine
+from vaca.utils import get_val
 
 
 class DbConnection(object):
@@ -21,8 +22,12 @@ class DbConnection(object):
     def create_connection(self, connection_config):
         cc = connection_config
         conn_query = self.get_connection_query(
-            cc['db_type'], cc['db_name'], cc['db_user'],
-            cc['db_password'], cc['db_host'], cc['db_options'])
+            get_val(cc['db_type']),
+            get_val(cc['db_name']),
+            get_val(cc['db_user']),
+            get_val(cc['db_password']),
+            get_val(cc['db_host']),
+            get_val(cc['db_options']))
         engine = create_engine(conn_query)
         self.connection = engine.connect()
 
@@ -62,7 +67,10 @@ class ConnectionConfig(object):
             return connections[0]
 
         for c in connections:
-            if c['name'] == name:
+            if get_val(c['name']) == name:
                 return c
 
         raise Exception('Invalid connection name')
+
+    def get_django_links(self):
+        return self.config.get('django', [])
